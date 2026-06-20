@@ -9,6 +9,5 @@ elseif placeId == 105633123928294 then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/sad2"))()
     
 else
-    -- Jalankan jika game tidak terdaftar di atas
     print("Game ID tidak dikenali: " .. tostring(placeId))
 end
