@@ -7,6 +7,11 @@ if placeId == 137899549303476 then
 elseif placeId == 105633123928294 then
     print("INSIDE BRAINROT HEAD WORLD 1")
     loadstring(game:HttpGet("https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/sad2"))()
+
+
+elseif placeId == 121190481297996 then
+    print("THROW A LUCKY BLOCK")
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/sad3TALB"))()
     
 else
     print("Game ID tidak dikenali: " .. tostring(placeId))
