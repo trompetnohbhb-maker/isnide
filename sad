@@ -3,6 +3,7 @@ local placeId = game.PlaceId
 if placeId == 137899549303476 then
     print("INSIDE BRAINROT HEAD WOLRD 2")
     loadstring(game:HttpGet("https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/sad1"))()
+
     
 elseif placeId == 105633123928294 then
     print("INSIDE BRAINROT HEAD WORLD 1")
@@ -12,7 +13,23 @@ elseif placeId == 105633123928294 then
 elseif placeId == 121190481297996 then
     print("THROW A LUCKY BLOCK")
    loadstring(game:HttpGet("https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/sad3TALB"))()
-    
+
+
+elseif placeId == 86264517332527 then
+    print("BE A LUCKY BLOCK FOR ANIME")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/Be%20a%20lucky%20block%20for%20anime"))()
+
+
+
+elseif placeId == 92495907247629 then
+    print("CLIMB FOR  LUCKY BLOCK")
+   loadstring(game:HttpGet('https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/UP%20FOR%20LUCKY%20BLOCK'))()
+
+elseif placeId == 99255447043899 then
+    print("BECOME A BRAINROT")
+     loadstring(game:HttpGet('https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/become%20a%20brainrot'))()
+
+
 else
     print("Game ID tidak dikenali: " .. tostring(placeId))
 end
