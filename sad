@@ -9,10 +9,7 @@ local daftarGame = {
     [86264517332527]  = { nama = "BE A LUCKY BLOCK FOR ANIME",  file = "Be%20a%20lucky%20block%20for%20anime" },
     [92495907247629]  = { nama = "CLIMB FOR LUCKY BLOCK",       file = "UP%20FOR%20LUCKY%20BLOCK" },
     [99255447043899]  = { nama = "BECOME A BRAINROT",           file = "become%20a%20brainrot" },
-    [74442575449267] = { nama = "THROW A HAMMER FOR BRAIRNOT", file = "throw%20a%20hammer%20for%20brainrot" },
-    [0] = { nama = "NAMA MAP", file = "inicontoh" },
-    [0] = { nama = "NAMA MAP", file = "inicontoh" },
-    [0] = { nama = "NAMA MAP", file = "inicontoh" }
+    [74442575449267] = { nama = "THROW A HAMMER FOR BRAIRNOT", file = "throw%20a%20hammer%20for%20brainrot" }
 
 
 
