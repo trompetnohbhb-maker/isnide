@@ -1,7 +1,6 @@
 local placeId = game.PlaceId
 local baseUrl = "https://raw.githubusercontent.com/trompetnohbhb-maker/isnide/refs/heads/main/"
 
-
 local daftarGame = {
     [137899549303476] = { nama = "INSIDE BRAINROT HEAD WOLRD 2", file = "sad1" },
     [105633123928294] = { nama = "INSIDE BRAINROT HEAD WORLD 1", file = "sad2" },
@@ -11,19 +10,18 @@ local daftarGame = {
     [99255447043899]  = { nama = "BECOME A BRAINROT",           file = "become%20a%20brainrot" },
     [74442575449267] = { nama = "THROW A HAMMER FOR BRAIRNOT", file = "throw%20a%20hammer%20for%20brainrot" },
     [79102003750116] = { nama = "YEET LUCKY BLOCK", file = "yeet%20lucky%20block" }
-
-
-
 }
-
 
 local gameTarget = daftarGame[placeId]
 
-
 if gameTarget then
     print(gameTarget.nama)
-    
-    loadstring(game:HttpGet(baseUrl .. gameTarget.file))()
+    local ok, err = pcall(function()
+        loadstring(game:HttpGet(baseUrl .. gameTarget.file))()
+    end)
+    if not ok then
+        warn("Gagal menjalankan script untuk " .. gameTarget.nama .. ": " .. tostring(err))
+    end
 else
     print("Game ID tidak dikenali: " .. tostring(placeId))
 end
