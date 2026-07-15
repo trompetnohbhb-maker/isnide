@@ -11,6 +11,7 @@ local daftarGame = {
     [74442575449267] = { nama = "THROW A HAMMER FOR BRAIRNOT", file = "throw%20a%20hammer%20for%20brainrot" },
     [79102003750116] = { nama = "YEET LUCKY BLOCK", file = "yeet%20lucky%20block" },
     [96401370703274] = { nama = "CLIMB AND DROP LUCKY BLOCK", file = "climb%20and%20drop%20lucky%20block" },
+    [102990893659741] = { nama = "Brainblast is a Lucky Block!", file = "Brainblast%20is%20a%20Lucky%20Block!" }
 }
 
 local gameTarget = daftarGame[placeId]
