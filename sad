@@ -11,19 +11,43 @@ local daftarGame = {
     [74442575449267] = { nama = "THROW A HAMMER FOR BRAIRNOT", file = "throw%20a%20hammer%20for%20brainrot" },
     [79102003750116] = { nama = "YEET LUCKY BLOCK", file = "yeet%20lucky%20block" },
     [96401370703274] = { nama = "CLIMB AND DROP LUCKY BLOCK", file = "climb%20and%20drop%20lucky%20block" },
-    [102990893659741] = { nama = "Brainblast is a Lucky Block!", file = "Brainblast%20is%20a%20Lucky%20Block!" }
+    [102990893659741] = { nama = "Brainblast is a Lucky Block!", file = "Brainblast%20is%20a%20Lucky%20Block!" },
+    [125927821145949] = { nama = "MINE MOUNTAIN", file = "mine" },
+    [114507117535918] = { nama = "Trouve l'œuf pour un Brainrot", file = "egg"},
+    [90247694815078] = { nama = "FIGHT A LUCKY BLOCK FOR BRAINROT", file = "fight"}
 }
 
 local gameTarget = daftarGame[placeId]
 
 if gameTarget then
-    print(gameTarget.nama)
+    -- Notifikasi sukses
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Script Loaded",
+            Text = "Game: " .. gameTarget.nama,
+            Duration = 5
+        })
+    end)
     local ok, err = pcall(function()
         loadstring(game:HttpGet(baseUrl .. gameTarget.file))()
     end)
     if not ok then
-        warn("Gagal menjalankan script untuk " .. gameTarget.nama .. ": " .. tostring(err))
+        -- Notifikasi error
+        pcall(function()
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Error",
+                Text = "Gagal menjalankan script: " .. tostring(err),
+                Duration = 5
+            })
+        end)
     end
 else
-    print("Game ID tidak dikenali: " .. tostring(placeId))
+    -- Notifikasi game tidak dikenali
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Unknown Game",
+            Text = "Game ID tidak dikenali: " .. tostring(placeId),
+            Duration = 5
+        })
+    end)
 end
