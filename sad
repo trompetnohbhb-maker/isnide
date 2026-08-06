@@ -19,7 +19,9 @@ local daftarGame = {
     [119822977170203] = { nama = "POWER BLAST LUCKY BLOCK", file = "power"},
     [86455914125987] = { nama = "WEB SWING FOR LUCKY BLOCK", file = "swing"},
     [111773649152177] = { nama = "CUT A GEM", file = "Gems"},
-    [97665661589897] = { nama = "JUMP CASE FOR RNG", file = "rng"}
+    [97665661589897] = { nama = "JUMP CASE FOR RNG", file = "rng"},
+    [104973076655377] = { nama = "CAPYBARAS VS PLANTS", file = "capy"}
+
 }
 
 local gameTarget = daftarGame[placeId]
