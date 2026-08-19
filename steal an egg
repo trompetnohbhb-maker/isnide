@@ -1,28 +1,16 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/deividcomsono/Obsidian/main/Library.lua"))()
-local blacklisted_executors = {
-    "xeno",
-    "solara",
-    "vegax",
-    "codex",
-    "velocity",
-}
 
+local blacklisted_executors = { "xeno", "solara", "vegax", "codex", "velocity" }
 pcall(function()
     local executorName = ""
-    if type(identifyexecutor) == "function" then
-        executorName = identifyexecutor()
-    elseif type(getexecutorname) == "function" then
-        executorName = getexecutorname()
-    end
-
+    if type(identifyexecutor) == "function" then executorName = identifyexecutor()
+    elseif type(getexecutorname) == "function" then executorName = getexecutorname() end
     if type(executorName) == "string" and executorName ~= "" then
         local loweredName = string.lower(executorName)
         for _, blacklistedName in ipairs(blacklisted_executors) do
             if string.find(loweredName, blacklistedName) then
                 local localPlayer = game:GetService("Players").LocalPlayer
-                if localPlayer then
-                    localPlayer:Kick("Please change your executor. The executor you're currently using (" .. executorName .. ") is unsupported and incompatible with NEXOLIB")
-                end
+                if localPlayer then localPlayer:Kick("Please change your executor. The executor you're currently using (" .. executorName .. ") is unsupported and incompatible with NEXOLIB") end
                 error("Blacklisted Executor Detected: " .. executorName)
             end
         end
@@ -34,14 +22,13 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
+local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 if getconnections then
-    for _, v in pairs(getconnections(player.Idled)) do
-        pcall(function() v:Disable() end)
-    end
+    for _, v in pairs(getconnections(player.Idled)) do pcall(function() v:Disable() end) end
 end
 
 local isDestroyed = false
@@ -62,10 +49,8 @@ local areas = {
     {name = "Prehistoric", pos = Vector3.new(2814.4, 70.57, -398.52)},
     {name = "Cosmic", pos = Vector3.new(3393.1, 70.57, -325.15)},
 }
-
 local areaNames = {}
 for _, a in ipairs(areas) do table.insert(areaNames, a.name) end
-
 local selectedAreasSet = {}
 local selectedAreasOrdered = {}
 
@@ -81,109 +66,118 @@ local RarityColors = {
     Eternal = Color3.fromRGB(255, 30, 240),
     Divine = Color3.fromRGB(251, 255, 0),
 }
-
-local rarityOptions = {
-    "Common", "Uncommon", "Rare", "Epic", "Legendary",
-    "Mythic", "Cosmic", "Secret", "Eternal", "Divine"
-}
+local rarityOptions = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Cosmic", "Secret", "Eternal", "Divine" }
 local selectedRarities = {}
 local selectedEggNames = {}
 local eggNameOptions = {}
 local selectedSellRarities = {}
 local minIncomeFilter = 0
 local maxIncomeFilter = math.huge
+local minScaleFilter = 0.1
+local maxScaleFilter = 100
 
-local AssetsDirectory = {
-    ["FennecFox"] = {DisplayName = "Fennec", Rarity = "Uncommon", Income = 18},
-    ["Irihorus"] = {DisplayName = "Royal Sphinx", Rarity = "Cosmic", Income = 280000},
-    ["Brr Brr Patapim"] = {DisplayName = "Brr Brr Patapim", Rarity = "Legendary", Income = 1800},
-    ["Tiger"] = {DisplayName = "Tiger", Rarity = "Mythic", Income = 28000},
-    ["Lava frog"] = {DisplayName = "Lava frog", Rarity = "Epic", Income = 850},
-    ["Eternal Lunar Dragon"] = {DisplayName = "Eternal Lunar Dragon", Rarity = "Eternal", Income = 250000000},
-    ["Bronto"] = {DisplayName = "Bronto", Rarity = "Cosmic", Income = 1500000},
-    ["Tralaledon"] = {DisplayName = "Tralaledon", Rarity = "Secret", Income = 32000000},
-    ["Spider"] = {DisplayName = "Spider", Rarity = "Mythic", Income = 22000},
-    ["Raccoon"] = {DisplayName = "Raccoon", Rarity = "Rare", Income = 45},
-    ["DeathstalkerScorpion"] = {DisplayName = "Scorpion", Rarity = "Mythic", Income = 18500},
-    ["Parrotfish"] = {DisplayName = "Parrotfish", Rarity = "Rare", Income = 220},
-    ["Camel"] = {DisplayName = "Camel", Rarity = "Rare", Income = 75},
-    ["Frog"] = {DisplayName = "Frog", Rarity = "Common", Income = 3},
-    ["Whale Shark"] = {DisplayName = "Whale Shark", Rarity = "Cosmic", Income = 700000},
-    ["Dog"] = {DisplayName = "Dog", Rarity = "Common", Income = 2},
-    ["Penguin"] = {DisplayName = "Penguin", Rarity = "Rare", Income = 140},
-    ["Finned Thresher"] = {DisplayName = "Shark", Rarity = "Legendary", Income = 15000},
-    ["Yeti"] = {DisplayName = "Yeti", Rarity = "Secret", Income = 5000000},
-    ["Cave Dragon"] = {DisplayName = "Cosmic Dragon", Rarity = "Secret", Income = 60000000},
-    ["Colossal Mammoth"] = {DisplayName = "King Mammoth", Rarity = "Cosmic", Income = 400000},
-    ["TyrannosaurusRex"] = {DisplayName = "TRex", Rarity = "Secret", Income = 25000000},
-    ["Bear"] = {DisplayName = "Bear", Rarity = "Epic", Income = 240},
-    ["Pterodactyl"] = {DisplayName = "Pterodactyl", Rarity = "Legendary", Income = 22000},
-    ["Sabertooth Tiger"] = {DisplayName = "Sabertooth Tiger", Rarity = "Mythic", Income = 35000},
-    ["Duckling"] = {DisplayName = "Duckling", Rarity = "Common", Income = 4},
-    ["Kraken"] = {DisplayName = "Kraken", Rarity = "Secret", Income = 15000000},
-    ["El Maja"] = {DisplayName = "El Maja", Rarity = "Eternal", Income = 130000000},
-    ["DesertLark"] = {DisplayName = "Bird", Rarity = "Uncommon", Income = 8},
-    ["Warden"] = {DisplayName = "King Snake", Rarity = "Secret", Income = 3500000},
-    ["Chicken"] = {DisplayName = "Chicken", Rarity = "Common", Income = 1},
-    ["Dream Axolotl"] = {DisplayName = "Axolotl", Rarity = "Legendary", Income = 2800},
-    ["Swan"] = {DisplayName = "Swan", Rarity = "Epic", Income = 320},
-    ["Turtle"] = {DisplayName = "Turtle", Rarity = "Rare", Income = 60},
-    ["Alien Skeleton Boss"] = {DisplayName = "Cosmic Skeleton Boss", Rarity = "Secret", Income = 45000000},
-    ["Chillin Chilli"] = {DisplayName = "Chillin Chilli", Rarity = "Mythic", Income = 55000},
-    ["Orca"] = {DisplayName = "Orca", Rarity = "Mythic", Income = 80000},
-    ["Basilisk"] = {DisplayName = "Leviathan", Rarity = "Cosmic", Income = 220000},
-    ["Polar Bear"] = {DisplayName = "Polar Bear", Rarity = "Legendary", Income = 7000},
-    ["La Vacca Saturno Saturnita"] = {DisplayName = "La Vacca Saturno Saturnita", Rarity = "Cosmic", Income = 2200000},
-    ["Centapede"] = {DisplayName = "Centapede", Rarity = "Epic", Income = 1500},
-    ["Mammoth"] = {DisplayName = "Mammoth", Rarity = "Mythic", Income = 42000},
-    ["Alabaster Whale"] = {DisplayName = "Beluga Whale", Rarity = "Cosmic", Income = 850000},
-    ["Cerberus"] = {DisplayName = "Cerberus", Rarity = "Secret", Income = 8000000},
-    ["Trulimero Trulicina"] = {DisplayName = "Trulimero Trulicina", Rarity = "Epic", Income = 260},
-    ["Ascended Vermilion Phoenix"] = {DisplayName = "Phoenix", Rarity = "Eternal", Income = 85000000},
-    ["Ice Dragon"] = {DisplayName = "Ice Dragon", Rarity = "Eternal", Income = 65000000},
-    ["Dragon"] = {DisplayName = "Lava Dragon", Rarity = "Eternal", Income = 100000000},
-    ["Gorilla"] = {DisplayName = "Gorilla", Rarity = "Legendary", Income = 4800},
-    ["Unicorn"] = {DisplayName = "Unicorn", Rarity = "Divine", Income = 1000000000},
-    ["Ankylosaurus"] = {DisplayName = "Ankylosaurus", Rarity = "Mythic", Income = 120000},
-    ["Mire Fox"] = {DisplayName = "Fox", Rarity = "Epic", Income = 180},
-    ["Triceratops"] = {DisplayName = "Triceratops", Rarity = "Cosmic", Income = 1200000},
-    ["Flaming Bull"] = {DisplayName = "Flaming Bull", Rarity = "Legendary", Income = 9500},
-    ["Ash Gecko"] = {DisplayName = "Lava Gecko", Rarity = "Rare", Income = 180},
-    ["Catfish"] = {DisplayName = "Catfish", Rarity = "Uncommon", Income = 12},
-    ["Lava Iguana"] = {DisplayName = "Lava Iguana", Rarity = "Legendary", Income = 11000},
-    ["Chimpanzee"] = {DisplayName = "Chimpanzee", Rarity = "Rare", Income = 90},
-    ["Dodo"] = {DisplayName = "Dodo", Rarity = "Rare", Income = 280},
-    ["Galaxy Gecko"] = {DisplayName = "Cosmic Gecko", Rarity = "Legendary", Income = 30000},
-    ["Sand Spider"] = {DisplayName = "Sand Spider", Rarity = "Mythic", Income = 16000},
-    ["Mosasaurus"] = {DisplayName = "Mosasaurus", Rarity = "Eternal", Income = 180000000},
-    ["Orangutini Ananassini"] = {DisplayName = "Orangutini Ananassini", Rarity = "Legendary", Income = 5500},
-    ["Tob Tobi Tob Tob"] = {DisplayName = "Tob Tobi Tob Tob", Rarity = "Epic", Income = 325},
-    ["Crocodile"] = {DisplayName = "Crocodile", Rarity = "Epic", Income = 420},
-    ["Rattlesnake"] = {DisplayName = "Snake", Rarity = "Legendary", Income = 3600},
-    ["Swordfish"] = {DisplayName = "Swordfish", Rarity = "Epic", Income = 1100},
-    ["Walrus"] = {DisplayName = "Walrus", Rarity = "Epic", Income = 600},
-    ["Toucan"] = {DisplayName = "Toucan", Rarity = "Rare", Income = 110},
-    ["Jerboa"] = {DisplayName = "Jerboa", Rarity = "Common", Income = 6},
-    ["Burrowing Owl"] = {DisplayName = "Owl", Rarity = "Rare", Income = 35},
-    ["Cyclops Gorilla"] = {DisplayName = "Cosmic Gorilla", Rarity = "Mythic", Income = 180000},
-    ["Strawberry Elephant"] = {DisplayName = "Strawberry Elephant", Rarity = "Eternal", Income = 110000000},
-    ["Bomboclat Crocolat"] = {DisplayName = "Bomboclat Crocolat", Rarity = "Secret", Income = 20000000},
-    ["Belula Beluga"] = {DisplayName = "Belula Beluga", Rarity = "Mythic", Income = 40000},
-    ["Bananita Dolphinita"] = {DisplayName = "Bananita Dolphinita", Rarity = "Epic", Income = 400},
-    ["Tung Tung Sahur"] = {DisplayName = "Tung Tung Sahur", Rarity = "Rare", Income = 100},
-    ["Mangolini Parrochini"] = {DisplayName = "Mangolini Parrochini", Rarity = "Cosmic", Income = 800000},
-    ["Gargoyle"] = {DisplayName = "Gargoyle", Rarity = "Secret", Income = 12000000},
-    ["Minotaur"] = {DisplayName = "Minotaur", Rarity = "Secret", Income = 40000000},
-    ["Balrog"] = {DisplayName = "Balrog", Rarity = "Eternal", Income = 200000000},
-    ["Hellhound"] = {DisplayName = "Hellhound", Rarity = "Cosmic", Income = 1800000},
-    ["Demon Imp"] = {DisplayName = "Demon Imp", Rarity = "Cosmic", Income = 700000},
-    ["Archdemon Dragon"] = {DisplayName = "Archdemon Dragon", Rarity = "Divine", Income = 1250000000},
+local MutationMultipliers = {
+    None = 1, Rainbow = 3.5, Shocked = 1.5, Frozen = 2, Candy = 3.5, Alpha = 4, Golden = 2.5, Magma = 2, Silver = 1.2,
+    Scared = 2, Windstruck = 1, Dawnbound = 1, Twisted = 1, Voidtouched = 1, Wet = 1, Chilled = 1, Choc = 1, Plasma = 1,
+    Heavenly = 1, Burnt = 1, Bloodmoon = 1, Zombified = 1, Celestial = 1, HoneyGlazed = 1, Pollinated = 1,
 }
 
-local function getSizeGrowthMultiplier(scale)
-    if scale <= 2 then return 1 end
-    if scale <= 6 then return (scale / 2) ^ 1.389 end
-    return math.min((scale / 6) ^ 0.72 * 4.6, 20)
+local AssetsDirectory = {
+    ["FennecFox"] = {DisplayName = "Fennec", Rarity = "Uncommon", EarningRate = 18, WeightKg = 2, ModelWeight = 8},
+    ["Irihorus"] = {DisplayName = "Royal Sphinx", Rarity = "Cosmic", EarningRate = 280000, WeightKg = 3, ModelWeight = 4000},
+    ["Brr Brr Patapim"] = {DisplayName = "Brr Brr Patapim", Rarity = "Legendary", EarningRate = 1800, WeightKg = 2, ModelWeight = 800},
+    ["Tiger"] = {DisplayName = "Tiger", Rarity = "Mythic", EarningRate = 28000, WeightKg = 4, ModelWeight = 260},
+    ["Lava frog"] = {DisplayName = "Lava frog", Rarity = "Epic", EarningRate = 850, WeightKg = 5, ModelWeight = 4},
+    ["Eternal Lunar Dragon"] = {DisplayName = "Eternal Lunar Dragon", Rarity = "Eternal", EarningRate = 250000000, WeightKg = 9, ModelWeight = 60000},
+    ["Bronto"] = {DisplayName = "Bronto", Rarity = "Cosmic", EarningRate = 1500000, WeightKg = 4, ModelWeight = 35000},
+    ["Tralaledon"] = {DisplayName = "Tralaledon", Rarity = "Secret", EarningRate = 32000000, WeightKg = 4, ModelWeight = 1000},
+    ["Spider"] = {DisplayName = "Spider", Rarity = "Mythic", EarningRate = 22000, WeightKg = 4, ModelWeight = 120},
+    ["Raccoon"] = {DisplayName = "Raccoon", Rarity = "Rare", EarningRate = 45, WeightKg = 1, ModelWeight = 19},
+    ["DeathstalkerScorpion"] = {DisplayName = "Scorpion", Rarity = "Mythic", EarningRate = 18500, WeightKg = 3, ModelWeight = 75},
+    ["Parrotfish"] = {DisplayName = "Parrotfish", Rarity = "Rare", EarningRate = 220, WeightKg = 6, ModelWeight = 5},
+    ["Camel"] = {DisplayName = "Camel", Rarity = "Rare", EarningRate = 75, WeightKg = 2, ModelWeight = 700},
+    ["Frog"] = {DisplayName = "Frog", Rarity = "Common", EarningRate = 3, WeightKg = 2, ModelWeight = 3},
+    ["Whale Shark"] = {DisplayName = "Whale Shark", Rarity = "Cosmic", EarningRate = 700000, WeightKg = 6, ModelWeight = 2000},
+    ["Dog"] = {DisplayName = "Dog", Rarity = "Common", EarningRate = 2, WeightKg = 1, ModelWeight = 25},
+    ["Penguin"] = {DisplayName = "Penguin", Rarity = "Rare", EarningRate = 140, WeightKg = 4, ModelWeight = 16},
+    ["Finned Thresher"] = {DisplayName = "Shark", Rarity = "Legendary", EarningRate = 15000, WeightKg = 6, ModelWeight = 450},
+    ["Yeti"] = {DisplayName = "Yeti", Rarity = "Secret", EarningRate = 5000000, WeightKg = 4, ModelWeight = 1500},
+    ["Cave Dragon"] = {DisplayName = "Cosmic Dragon", Rarity = "Secret", EarningRate = 60000000, WeightKg = 8, ModelWeight = 15000},
+    ["Colossal Mammoth"] = {DisplayName = "King Mammoth", Rarity = "Cosmic", EarningRate = 400000, WeightKg = 4, ModelWeight = 25000},
+    ["TyrannosaurusRex"] = {DisplayName = "TRex", Rarity = "Secret", EarningRate = 25000000, WeightKg = 5, ModelWeight = 7500},
+    ["Bear"] = {DisplayName = "Bear", Rarity = "Epic", EarningRate = 240, WeightKg = 2, ModelWeight = 220},
+    ["Pterodactyl"] = {DisplayName = "Pterodactyl", Rarity = "Legendary", EarningRate = 22000, WeightKg = 3, ModelWeight = 180},
+    ["Sabertooth Tiger"] = {DisplayName = "Sabertooth Tiger", Rarity = "Mythic", EarningRate = 35000, WeightKg = 4, ModelWeight = 350},
+    ["Duckling"] = {DisplayName = "Duckling", Rarity = "Common", EarningRate = 4, WeightKg = 2, ModelWeight = 3},
+    ["Kraken"] = {DisplayName = "Kraken", Rarity = "Secret", EarningRate = 15000000, WeightKg = 6, ModelWeight = 18000},
+    ["El Maja"] = {DisplayName = "El Maja", Rarity = "Eternal", EarningRate = 130000000, WeightKg = 6, ModelWeight = 90000},
+    ["DesertLark"] = {DisplayName = "Bird", Rarity = "Uncommon", EarningRate = 8, WeightKg = 1, ModelWeight = 5},
+    ["Warden"] = {DisplayName = "King Snake", Rarity = "Secret", EarningRate = 3500000, WeightKg = 4, ModelWeight = 10000},
+    ["Chicken"] = {DisplayName = "Chicken", Rarity = "Common", EarningRate = 1, WeightKg = 1, ModelWeight = 8},
+    ["Dream Axolotl"] = {DisplayName = "Axolotl", Rarity = "Legendary", EarningRate = 2800, WeightKg = 2, ModelWeight = 28},
+    ["Swan"] = {DisplayName = "Swan", Rarity = "Epic", EarningRate = 320, WeightKg = 2, ModelWeight = 22},
+    ["Turtle"] = {DisplayName = "Turtle", Rarity = "Rare", EarningRate = 60, WeightKg = 2, ModelWeight = 100},
+    ["Alien Skeleton Boss"] = {DisplayName = "Cosmic Skeleton Boss", Rarity = "Secret", EarningRate = 45000000, WeightKg = 8, ModelWeight = 1000},
+    ["Chillin Chilli"] = {DisplayName = "Chillin Chilli", Rarity = "Mythic", EarningRate = 55000, WeightKg = 5, ModelWeight = 30},
+    ["Orca"] = {DisplayName = "Orca", Rarity = "Mythic", EarningRate = 80000, WeightKg = 6, ModelWeight = 1800},
+    ["Basilisk"] = {DisplayName = "Leviathan", Rarity = "Cosmic", EarningRate = 220000, WeightKg = 2, ModelWeight = 5000},
+    ["Polar Bear"] = {DisplayName = "Polar Bear", Rarity = "Legendary", EarningRate = 7000, WeightKg = 4, ModelWeight = 650},
+    ["La Vacca Saturno Saturnita"] = {DisplayName = "La Vacca Saturno Saturnita", Rarity = "Cosmic", EarningRate = 2200000, WeightKg = 8, ModelWeight = 740},
+    ["Centapede"] = {DisplayName = "Centapede", Rarity = "Epic", EarningRate = 1500, WeightKg = 7, ModelWeight = 6},
+    ["Mammoth"] = {DisplayName = "Mammoth", Rarity = "Mythic", EarningRate = 42000, WeightKg = 4, ModelWeight = 2000},
+    ["Alabaster Whale"] = {DisplayName = "Beluga Whale", Rarity = "Cosmic", EarningRate = 850000, WeightKg = 6, ModelWeight = 5000},
+    ["Cerberus"] = {DisplayName = "Cerberus", Rarity = "Secret", EarningRate = 8000000, WeightKg = 5, ModelWeight = 9000},
+    ["Trulimero Trulicina"] = {DisplayName = "Trulimero Trulicina", Rarity = "Epic", EarningRate = 260, WeightKg = 2, ModelWeight = 140},
+    ["Ascended Vermilion Phoenix"] = {DisplayName = "Phoenix", Rarity = "Eternal", EarningRate = 85000000, WeightKg = 5, ModelWeight = 2500},
+    ["Ice Dragon"] = {DisplayName = "Ice Dragon", Rarity = "Eternal", EarningRate = 65000000, WeightKg = 4, ModelWeight = 8500},
+    ["Dragon"] = {DisplayName = "Lava Dragon", Rarity = "Eternal", EarningRate = 100000000, WeightKg = 5, ModelWeight = 14000},
+    ["Gorilla"] = {DisplayName = "Gorilla", Rarity = "Legendary", EarningRate = 4800, WeightKg = 3, ModelWeight = 190},
+    ["Unicorn"] = {DisplayName = "Unicorn", Rarity = "Divine", EarningRate = 1000000000, WeightKg = 10, ModelWeight = 1200},
+    ["Ankylosaurus"] = {DisplayName = "Ankylosaurus", Rarity = "Mythic", EarningRate = 120000, WeightKg = 2, ModelWeight = 2500},
+    ["Mire Fox"] = {DisplayName = "Fox", Rarity = "Epic", EarningRate = 180, WeightKg = 1, ModelWeight = 28},
+    ["Triceratops"] = {DisplayName = "Triceratops", Rarity = "Cosmic", EarningRate = 1200000, WeightKg = 3, ModelWeight = 3500},
+    ["Flaming Bull"] = {DisplayName = "Flaming Bull", Rarity = "Legendary", EarningRate = 9500, WeightKg = 5, ModelWeight = 450},
+    ["Ash Gecko"] = {DisplayName = "Lava Gecko", Rarity = "Rare", EarningRate = 180, WeightKg = 5, ModelWeight = 14},
+    ["Catfish"] = {DisplayName = "Catfish", Rarity = "Uncommon", EarningRate = 12, WeightKg = 2, ModelWeight = 35},
+    ["Lava Iguana"] = {DisplayName = "Lava Iguana", Rarity = "Legendary", EarningRate = 11000, WeightKg = 5, ModelWeight = 400},
+    ["Chimpanzee"] = {DisplayName = "Chimpanzee", Rarity = "Rare", EarningRate = 90, WeightKg = 3, ModelWeight = 65},
+    ["Dodo"] = {DisplayName = "Dodo", Rarity = "Rare", EarningRate = 280, WeightKg = 7, ModelWeight = 20},
+    ["Galaxy Gecko"] = {DisplayName = "Cosmic Gecko", Rarity = "Legendary", EarningRate = 30000, WeightKg = 8, ModelWeight = 18},
+    ["Sand Spider"] = {DisplayName = "Sand Spider", Rarity = "Mythic", EarningRate = 16000, WeightKg = 3, ModelWeight = 120},
+    ["Mosasaurus"] = {DisplayName = "Mosasaurus", Rarity = "Eternal", EarningRate = 180000000, WeightKg = 6, ModelWeight = 30000},
+    ["Orangutini Ananassini"] = {DisplayName = "Orangutini Ananassini", Rarity = "Legendary", EarningRate = 5500, WeightKg = 3, ModelWeight = 140},
+    ["Tob Tobi Tob Tob"] = {DisplayName = "Tob Tobi Tob Tob", Rarity = "Epic", EarningRate = 325, WeightKg = 3, ModelWeight = 700},
+    ["Crocodile"] = {DisplayName = "Crocodile", Rarity = "Epic", EarningRate = 420, WeightKg = 3, ModelWeight = 400},
+    ["Rattlesnake"] = {DisplayName = "Snake", Rarity = "Legendary", EarningRate = 3600, WeightKg = 3, ModelWeight = 45},
+    ["Swordfish"] = {DisplayName = "Swordfish", Rarity = "Epic", EarningRate = 1100, WeightKg = 6, ModelWeight = 250},
+    ["Walrus"] = {DisplayName = "Walrus", Rarity = "Epic", EarningRate = 600, WeightKg = 4, ModelWeight = 200},
+    ["Toucan"] = {DisplayName = "Toucan", Rarity = "Rare", EarningRate = 110, WeightKg = 3, ModelWeight = 5},
+    ["Jerboa"] = {DisplayName = "Jerboa", Rarity = "Common", EarningRate = 6, WeightKg = 2, ModelWeight = 2},
+    ["Burrowing Owl"] = {DisplayName = "Owl", Rarity = "Rare", EarningRate = 35, WeightKg = 1, ModelWeight = 8},
+    ["Cyclops Gorilla"] = {DisplayName = "Cosmic Gorilla", Rarity = "Mythic", EarningRate = 180000, WeightKg = 8, ModelWeight = 450},
+    ["Strawberry Elephant"] = {DisplayName = "Strawberry Elephant", Rarity = "Eternal", EarningRate = 110000000, WeightKg = 6, ModelWeight = 35000},
+    ["Bomboclat Crocolat"] = {DisplayName = "Bomboclat Crocolat", Rarity = "Secret", EarningRate = 20000000, WeightKg = 6, ModelWeight = 7000},
+    ["Belula Beluga"] = {DisplayName = "Belula Beluga", Rarity = "Mythic", EarningRate = 40000, WeightKg = 6, ModelWeight = 800},
+    ["Bananita Dolphinita"] = {DisplayName = "Bananita Dolphinita", Rarity = "Epic", EarningRate = 400, WeightKg = 6, ModelWeight = 300},
+    ["Tung Tung Sahur"] = {DisplayName = "Tung Tung Sahur", Rarity = "Rare", EarningRate = 100, WeightKg = 6, ModelWeight = 35},
+    ["Mangolini Parrochini"] = {DisplayName = "Mangolini Parrochini", Rarity = "Cosmic", EarningRate = 800000, WeightKg = 6, ModelWeight = 1500},
+    ["Gargoyle"] = {DisplayName = "Gargoyle", Rarity = "Secret", EarningRate = 12000000, WeightKg = 9, ModelWeight = 50000},
+    ["Minotaur"] = {DisplayName = "Minotaur", Rarity = "Secret", EarningRate = 40000000, WeightKg = 12, ModelWeight = 55000},
+    ["Balrog"] = {DisplayName = "Balrog", Rarity = "Eternal", EarningRate = 200000000, WeightKg = 16, ModelWeight = 65000},
+    ["Hellhound"] = {DisplayName = "Hellhound", Rarity = "Cosmic", EarningRate = 1800000, WeightKg = 20, ModelWeight = 72000},
+    ["Demon Imp"] = {DisplayName = "Demon Imp", Rarity = "Cosmic", EarningRate = 700000, WeightKg = 8, ModelWeight = 45000},
+    ["Archdemon Dragon"] = {DisplayName = "Archdemon Dragon", Rarity = "Divine", EarningRate = 1250000000, WeightKg = 40, ModelWeight = 120000},
+}
+
+local function getMutationMultiplier(mutations)
+    local total = 1
+    if type(mutations) == "table" then
+        for _, m in ipairs(mutations) do
+            local mult = MutationMultipliers[m] or 1
+            if mult > 1 then total = total + (mult - 1) end
+        end
+    end
+    return total
 end
 
 local function formatCompact(num)
@@ -191,7 +185,11 @@ local function formatCompact(num)
     elseif num >= 1e9 then return string.format("%.2fB", num / 1e9)
     elseif num >= 1e6 then return string.format("%.2fM", num / 1e6)
     elseif num >= 1e3 then return string.format("%.1fK", num / 1e3)
-    else return tostring(math.floor(num)) end
+    else return tostring(math.floor(num + 0.5)) end
+end
+
+local function formatScale(s)
+    if math.abs(s - math.floor(s + 0.5)) < 0.001 then return tostring(math.floor(s + 0.5)) else return string.format("%.2f", s) end
 end
 
 local function parseIncomeText(text)
@@ -215,16 +213,12 @@ local function buildEggNameOptions()
         if not seen[optionString] then
             seen[optionString] = true
             local idx = 99
-            for i, r in ipairs(rarityOptions) do
-                if r == cfg.Rarity then idx = i break end
-            end
+            for i, r in ipairs(rarityOptions) do if r == cfg.Rarity then idx = i break end end
             table.insert(tempList, { optionString = optionString, rarityIndex = idx })
         end
     end
     table.sort(tempList, function(a, b) return a.rarityIndex < b.rarityIndex end)
-    for _, item in ipairs(tempList) do
-        table.insert(eggNameOptions, item.optionString)
-    end
+    for _, item in ipairs(tempList) do table.insert(eggNameOptions, item.optionString) end
 end
 buildEggNameOptions()
 
@@ -234,44 +228,27 @@ local snapshotRemote = Network and Network:FindFirstChild("Eggs: RequestAreaEggS
 local sellRemote = Network and Network:FindFirstChild("AssetInventory: SellAsset")
 local equipRemote = nil
 local runtimeSnapshotRemote = Network and Network:FindFirstChild("Eggs: RequestRuntimeSnapshot")
-
 if Network then
-    local equipNames = {
-        "Eggs: RequestEquipTool",
-        "RequestEquipTool",
-        "Eggs: EquipTool",
-    }
+    local equipNames = { "Eggs: RequestEquipTool", "RequestEquipTool", "Eggs: EquipTool" }
     for _, name in ipairs(equipNames) do
         local rem = Network:FindFirstChild(name)
-        if rem and rem:IsA("RemoteFunction") then
-            equipRemote = rem
-            break
-        end
+        if rem and rem:IsA("RemoteFunction") then equipRemote = rem break end
     end
     if not equipRemote then
         for _, child in ipairs(Network:GetDescendants()) do
-            if child:IsA("RemoteFunction") and string.find(child.Name, "EquipTool") then
-                equipRemote = child
-                break
-            end
+            if child:IsA("RemoteFunction") and string.find(child.Name, "EquipTool") then equipRemote = child break end
         end
     end
-
     if not runtimeSnapshotRemote then
         for _, child in ipairs(Network:GetDescendants()) do
-            if child:IsA("RemoteFunction") and string.find(child.Name, "RequestRuntimeSnapshot") then
-                runtimeSnapshotRemote = child
-                break
-            end
+            if child:IsA("RemoteFunction") and string.find(child.Name, "RequestRuntimeSnapshot") then runtimeSnapshotRemote = child break end
         end
     end
 end
 
 local function safeSetLabel(label, text)
     if not label or isDestroyed then return end
-    pcall(function()
-        if label.SetText then label:SetText(text) end
-    end)
+    pcall(function() if label.SetText then label:SetText(text) end end)
 end
 
 local function getCharacterModel()
@@ -308,46 +285,28 @@ local function getNearestArea(pos)
     local nearest, minDist = nil, math.huge
     for _, a in ipairs(areas) do
         local d = (a.pos - pos).Magnitude
-        if d < minDist then
-            minDist = d
-            nearest = a
-        end
+        if d < minDist then minDist = d nearest = a end
     end
     return nearest
 end
 
 local nextResetAt = nil
 local resetEvent = nil
-
 if Network then
-    local possibleNames = {
-        "AreaEggResetStartCountdown",
-        "Eggs: AreaEggResetStartCountdown",
-        "AREA_EGG_RESET_START_COUNTDOWN",
-        "Eggs: AREA_EGG_RESET_START_COUNTDOWN",
-    }
+    local possibleNames = { "AreaEggResetStartCountdown", "Eggs: AreaEggResetStartCountdown", "AREA_EGG_RESET_START_COUNTDOWN", "Eggs: AREA_EGG_RESET_START_COUNTDOWN" }
     for _, name in ipairs(possibleNames) do
         local ev = Network:FindFirstChild(name)
-        if ev and ev:IsA("RemoteEvent") then
-            resetEvent = ev
-            break
-        end
+        if ev and ev:IsA("RemoteEvent") then resetEvent = ev break end
     end
     if not resetEvent then
         for _, child in ipairs(Network:GetDescendants()) do
-            if child:IsA("RemoteEvent") and string.find(child.Name, "ResetStartCountdown") then
-                resetEvent = child
-                break
-            end
+            if child:IsA("RemoteEvent") and string.find(child.Name, "ResetStartCountdown") then resetEvent = child break end
         end
     end
 end
-
 if resetEvent then
     resetEvent.OnClientEvent:Connect(function(payload)
-        if type(payload) == "table" and payload.DayStartsAt then
-            nextResetAt = payload.DayStartsAt
-        end
+        if type(payload) == "table" and payload.DayStartsAt then nextResetAt = payload.DayStartsAt end
     end)
 end
 
@@ -359,9 +318,7 @@ local function getGameResetTimerText()
         local main = timeLeft:FindFirstChild("Main")
         if main then
             local label = main:FindFirstChild("TextLabel")
-            if label and label.Visible and label.Text ~= "" then
-                return label.Text
-            end
+            if label and label.Visible and label.Text ~= "" then return label.Text end
         end
     end
     local endingSoon = gui:FindFirstChild("EndingSoon")
@@ -369,9 +326,7 @@ local function getGameResetTimerText()
         local main = endingSoon:FindFirstChild("Main")
         if main then
             local label = main:FindFirstChild("TextLabel")
-            if label and label.Visible and label.Text ~= "" then
-                return label.Text
-            end
+            if label and label.Visible and label.Text ~= "" then return label.Text end
         end
     end
     return nil
@@ -383,13 +338,9 @@ local function getResetStartTimerText()
     local frame = gui:FindFirstChild("Frame")
     if frame then
         local nightTimer = frame:FindFirstChild("NightTimer")
-        if nightTimer and nightTimer.Visible and nightTimer.Text ~= "" then
-            return nightTimer.Text
-        end
+        if nightTimer and nightTimer.Visible and nightTimer.Text ~= "" then return nightTimer.Text end
         local textLabel = frame:FindFirstChild("TextLabel")
-        if textLabel and textLabel.Visible and textLabel.Text ~= "" then
-            return textLabel.Text
-        end
+        if textLabel and textLabel.Visible and textLabel.Text ~= "" then return textLabel.Text end
     end
     return nil
 end
@@ -409,13 +360,9 @@ local function formatTime(seconds)
     local hours = math.floor(seconds / 3600)
     local minutes = math.floor((seconds % 3600) / 60)
     local secs = seconds % 60
-    if hours > 0 then
-        return string.format("%d jam %d mnt %d dtk", hours, minutes, secs)
-    elseif minutes > 0 then
-        return string.format("%d mnt %d dtk", minutes, secs)
-    else
-        return string.format("%d dtk", secs)
-    end
+    if hours > 0 then return string.format("%d jam %d mnt %d dtk", hours, minutes, secs)
+    elseif minutes > 0 then return string.format("%d mnt %d dtk", minutes, secs)
+    else return string.format("%d dtk", secs) end
 end
 
 local function getNightStatus()
@@ -424,7 +371,6 @@ local function getNightStatus()
     local timerText = "Mencari event..."
     local targetText = ""
     local demonic = Workspace:GetAttribute("Event_DemonicEvent") or false
-
     if nextResetAt and now < nextResetAt then
         isNight = true
         local remaining = nextResetAt - now
@@ -432,27 +378,15 @@ local function getNightStatus()
         targetText = "Menuju: Siang ☀️"
         return isNight, timerText, targetText, demonic
     end
-
     local guiText = getGameResetTimerText() or getResetStartTimerText()
     if guiText then
         isNight = isNightFallback()
         timerText = guiText
-        if isNight then
-            targetText = "Menuju: Siang ☀️"
-        else
-            targetText = "Menuju: Malam 🌙"
-        end
+        if isNight then targetText = "Menuju: Siang ☀️" else targetText = "Menuju: Malam 🌙" end
         return isNight, timerText, targetText, demonic
     end
-
     isNight = isNightFallback()
-    if isNight then
-        timerText = "Malam"
-        targetText = "Menuju: Siang ☀️"
-    else
-        timerText = "Siang"
-        targetText = "Menuju: Malam 🌙"
-    end
+    if isNight then timerText = "Malam" targetText = "Menuju: Siang ☀️" else timerText = "Siang" targetText = "Menuju: Malam 🌙" end
     return isNight, timerText, targetText, demonic
 end
 
@@ -463,33 +397,27 @@ end
 
 local function getRemainingSecondsToTransition()
     local isNight, timerText = getNightStatus()
-
     if isNight then
-        if nextResetAt then
-            return nextResetAt - Workspace:GetServerTimeNow()
-        else
-            return nil
-        end
+        if nextResetAt then return nextResetAt - Workspace:GetServerTimeNow() else return nil end
     else
         if timerText and timerText ~= "Siang" and timerText ~= "Mencari event..." then
             local hours, minutes, seconds = timerText:match("(%d+)%s*jam%s*(%d+)%s*mnt%s*(%d+)%s*dtk")
             if hours then
-                return tonumber(hours)*3600 + tonumber(minutes)*60 + tonumber(seconds)
+                local h = tonumber(hours) or 0
+                local min = tonumber(minutes) or 0
+                local sec = tonumber(seconds) or 0
+                return h * 3600 + min * 60 + sec
             end
             local m, s = timerText:match("(%d+)%s*mnt%s*(%d+)%s*dtk")
             if m then
-                local total = tonumber(m)*60
-                if s then total += tonumber(s) end
+                local total = (tonumber(m) or 0) * 60
+                if s then total = total + (tonumber(s) or 0) end
                 return total
             end
             local secOnly = timerText:match("(%d+)%s*dtk")
-            if secOnly then
-                return tonumber(secOnly)
-            end
+            if secOnly then return tonumber(secOnly) or 0 end
             local mins2, secs2 = timerText:match("(%d+):(%d+)")
-            if mins2 then
-                return tonumber(mins2)*60 + tonumber(secs2)
-            end
+            if mins2 then return (tonumber(mins2) or 0) * 60 + (tonumber(secs2) or 0) end
         end
         return nil
     end
@@ -498,9 +426,7 @@ end
 local function getAreaEggSnapshot()
     if snapshotRemote and snapshotRemote:IsA("RemoteFunction") then
         local ok, result = pcall(function() return snapshotRemote:InvokeServer() end)
-        if ok and result and result.Records then
-            return result
-        end
+        if ok and result and result.Records then return result end
     end
     local fakeRecords = {}
     local folder = Workspace:FindFirstChild("AreaEggSlotsClient") or Workspace:FindFirstChild("AreaEggSlots")
@@ -512,11 +438,10 @@ local function getAreaEggSnapshot()
                 local area = getNearestArea(pos)
                 local assetCategory = model:GetAttribute("AssetCategory") or uid
                 table.insert(fakeRecords, {
-                    Uid = uid,
-                    AreaId = area and area.name or "Forest",
-                    AssetCategory = assetCategory,
+                    Uid = uid, AreaId = area and area.name or "Forest", AssetCategory = assetCategory,
                     AssetScale = model:GetAttribute("AssetScale") or 1,
                     BottomCFrame = model:IsA("Model") and model:GetPivot() or CFrame.new(model.Position),
+                    Mutations = model:GetAttribute("Mutations") or {},
                 })
             end
         end
@@ -527,27 +452,17 @@ end
 local function isModelAllowed(assetCategory)
     local rarityName = getRarityName(assetCategory)
     local displayName = getDisplayName(assetCategory)
-
     local hasNameSelection = false
-    for _, v in pairs(selectedEggNames) do
-        if v == true then hasNameSelection = true break end
-    end
+    for _, v in pairs(selectedEggNames) do if v == true then hasNameSelection = true break end end
     local hasRaritySelection = false
-    for _, v in pairs(selectedRarities) do
-        if v == true then hasRaritySelection = true break end
-    end
-
+    for _, v in pairs(selectedRarities) do if v == true then hasRaritySelection = true break end end
     local nameMatch = false
     if hasNameSelection then
         local optionString = displayName .. " | " .. rarityName
         nameMatch = selectedEggNames[optionString] == true
     end
-
     local rarityMatch = true
-    if hasRaritySelection then
-        rarityMatch = selectedRarities[rarityName] == true
-    end
-
+    if hasRaritySelection then rarityMatch = selectedRarities[rarityName] == true end
     if hasNameSelection then
         if nameMatch then return true end
         return rarityMatch
@@ -556,40 +471,36 @@ local function isModelAllowed(assetCategory)
     end
 end
 
-local function getIncomeForCategoryAndScale(category, scale)
-    local baseIncome = AssetsDirectory[category] and AssetsDirectory[category].Income or 0
-    local multiplier = scale and getSizeGrowthMultiplier(scale) or 1
-    return baseIncome * multiplier
+local function getIncomeForCategoryScaleAndMutations(category, scale, mutations)
+    local baseEarning = AssetsDirectory[category] and AssetsDirectory[category].EarningRate or 0
+    local mutationMult = getMutationMultiplier(mutations or {})
+    local safeScale = scale or 1
+    return baseEarning * safeScale * mutationMult
 end
 
 local function findEggsFromSnapshot()
     local snapshot = getAreaEggSnapshot()
     if not snapshot or not snapshot.Records then return nil, {} end
-
     local foundArea = nil
     local foundModels = {}
-
     for _, record in ipairs(snapshot.Records) do
         local recordArea = record.AreaId
         local area = nil
-        for _, a in ipairs(selectedAreasOrdered) do
-            if a.name == recordArea then area = a break end
-        end
-
+        for _, a in ipairs(selectedAreasOrdered) do if a.name == recordArea then area = a break end end
         if area then
             local uid = record.Uid
             local model = nil
             local folder = Workspace:FindFirstChild("AreaEggSlotsClient")
             if folder then model = folder:FindFirstChild(uid) end
             if not model then model = Workspace:FindFirstChild(uid) end
-
             if model and (model:IsA("Model") or model:IsA("BasePart")) then
                 local assetCategory = record.AssetCategory or model.Name
                 if isModelAllowed(assetCategory) then
                     local scale = record.AssetScale or model:GetAttribute("AssetScale") or 1
-                    local income = getIncomeForCategoryAndScale(assetCategory, scale)
-
-                    if income >= minIncomeFilter and income <= maxIncomeFilter then
+                    if model:IsA("Model") and model:GetScale() then scale = model:GetScale() end
+                    local mutations = record.Mutations or {}
+                    local income = getIncomeForCategoryScaleAndMutations(assetCategory, scale, mutations)
+                    if income >= minIncomeFilter and income <= maxIncomeFilter and scale >= minScaleFilter and scale <= maxScaleFilter then
                         foundArea = area
                         table.insert(foundModels, model)
                     end
@@ -610,9 +521,7 @@ local function installResetBlocker()
     local fireServerFunc = Instance.new("RemoteEvent").FireServer
     oldFireServer = hookfunction(fireServerFunc, function(self, ...)
         local args = table.pack(...)
-        if deathHandlerActive and (self.Name:lower():find("requestcharacterreset") or self.Name:lower():find("clientcharacter")) then
-            return
-        end
+        if deathHandlerActive and (self.Name:lower():find("requestcharacterreset") or self.Name:lower():find("clientcharacter")) then return end
         return oldFireServer(self, table.unpack(args, 1, args.n))
     end)
 end
@@ -650,18 +559,13 @@ local deathStateConnection = nil
 local function setHealthZeroNoDeath(char)
     local humanoid = char:WaitForChild("Humanoid", 10)
     if not humanoid then return end
-
     deathStateOriginal = humanoid:GetStateEnabled(Enum.HumanoidStateType.Dead)
     humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-
     humanoid.Health = 0
-
     if healthConnection then healthConnection:Disconnect() end
     healthConnection = humanoid.Changed:Connect(function(prop)
         if prop == "Health" and godModeActive then
-            if humanoid.Health ~= 0 then
-                humanoid.Health = 0
-            end
+            if humanoid.Health ~= 0 then humanoid.Health = 0 end
         end
     end)
 end
@@ -672,97 +576,68 @@ local function restoreHumanoid(char)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, deathStateOriginal)
         humanoid.Health = humanoid.MaxHealth
     end
-    if healthConnection then
-        healthConnection:Disconnect()
-        healthConnection = nil
-    end
+    if healthConnection then healthConnection:Disconnect() healthConnection = nil end
 end
 
 local function enableGodMode()
     if godModeActive then return end
     godModeActive = true
-
-    if player.Character then
-        setHealthZeroNoDeath(player.Character)
-    end
-
+    if player.Character then setHealthZeroNoDeath(player.Character) end
     deathStateConnection = player.CharacterAdded:Connect(function(newChar)
-        if godModeActive then
-            setHealthZeroNoDeath(newChar)
-        end
+        if godModeActive then setHealthZeroNoDeath(newChar) end
     end)
 end
 
 local function disableGodMode()
     if not godModeActive then return end
     godModeActive = false
-
-    if deathStateConnection then
-        deathStateConnection:Disconnect()
-        deathStateConnection = nil
-    end
-
-    if player.Character then
-        restoreHumanoid(player.Character)
-    end
+    if deathStateConnection then deathStateConnection:Disconnect() deathStateConnection = nil end
+    if player.Character then restoreHumanoid(player.Character) end
 end
 
-local flySpeed = 1100
+local flySpeed = 100
 
-local function flyToTarget(targetPos)
+local function flyToTarget(targetPos, landOnArrival)
     local rootPart = getRootPart()
     local humanoid = getHumanoid()
     if not rootPart or not humanoid or not rootPart.Parent then return false end
-
     humanoid.PlatformStand = true
-
     local targetY = targetPos.Y + 10
     local actualTarget = Vector3.new(targetPos.X, targetY, targetPos.Z)
-
     local bodyGyro = Instance.new("BodyGyro")
     bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
     bodyGyro.P = 10000
     bodyGyro.D = 100
     bodyGyro.CFrame = CFrame.lookAt(rootPart.Position, actualTarget)
     bodyGyro.Parent = rootPart
-
     local bodyVel = Instance.new("BodyVelocity")
     bodyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
     bodyVel.Velocity = Vector3.new(0, 0, 0)
     bodyVel.Parent = rootPart
-
     local arrived = false
     local startTime = tick()
-
     while not arrived and (tick() - startTime) < 60 do
         if not rootPart.Parent then break end
-        
-        if isNightTime() then
-            break
-        end
-
+        if isNightTime() then break end
         local pos = rootPart.Position
         local dir = (actualTarget - pos).Unit
         bodyVel.Velocity = dir * flySpeed
         bodyGyro.CFrame = CFrame.lookAt(pos, actualTarget)
         humanoid.Health = 0
-        if (actualTarget - pos).Magnitude < 3 then
-            arrived = true
-            break
-        end
+        if (actualTarget - pos).Magnitude < 3 then arrived = true break end
         RunService.RenderStepped:Wait()
     end
-
     bodyVel:Destroy()
     bodyGyro:Destroy()
-    rootPart.CFrame = CFrame.new(actualTarget)
+    if landOnArrival then
+        rootPart.CFrame = CFrame.new(targetPos)
+    else
+        rootPart.CFrame = CFrame.new(actualTarget)
+    end
     rootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
     rootPart.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
     humanoid.PlatformStand = false
-    
-    if isNightTime() then
-        return false
-    end
+    if isNightTime() then return false end
     return true
 end
 
@@ -778,24 +653,164 @@ local function getNearestStartPos(currentPos)
     return dist1 <= dist2 and START_POS_1 or START_POS_2
 end
 
-local farmDelay = 0.5
 local farmActive = false
+local antiRagdoll = false
+local stateConnections = {}
+local clientCharacterUpdateConn = nil
+local carrySpamLoop = nil
+local carrySpamActive = false
+local carrySpamUid = nil
+
+local dropRemote = nil
+local dropIsFunction = false
+
+if Network then
+    local dropNames = { "Eggs: RequestAreaEggDrop", "Eggs: DropAreaEgg", "Eggs: DropAreaEggRequest" }
+    for _, name in ipairs(dropNames) do
+        local rem = Network:FindFirstChild(name)
+        if rem then dropRemote = rem break end
+    end
+    if not dropRemote then
+        for _, child in ipairs(Network:GetDescendants()) do
+            if (child:IsA("RemoteFunction") or child:IsA("RemoteEvent")) and string.find(child.Name, "Drop") then
+                dropRemote = child break
+            end
+        end
+    end
+    if dropRemote then dropIsFunction = dropRemote:IsA("RemoteFunction") end
+end
+
+local clientCharacterUpdate = Network and Network:FindFirstChild("ClientCharacter: Update")
+
+local function dropEgg()
+    if not dropRemote then return end
+    pcall(function()
+        if dropIsFunction then dropRemote:InvokeServer({Reason = "GuardHit"}) else dropRemote:FireServer({Reason = "GuardHit"}) end
+    end)
+end
+
+local function clearRagdollConstraints(char)
+    if not char then return end
+    for _, obj in ipairs(char:GetDescendants()) do
+        if obj:GetAttribute("RagdollConstraint") then
+            if obj:IsA("BallSocketConstraint") or obj:IsA("HingeConstraint") then pcall(function() obj:Destroy() end) end
+        end
+    end
+    for _, obj in ipairs(char:GetDescendants()) do
+        if obj:GetAttribute("RagdollAttachment") then pcall(function() obj:Destroy() end) end
+    end
+    for _, motor in ipairs(char:GetDescendants()) do
+        if motor:IsA("Motor6D") and not motor.Enabled then motor.Enabled = true end
+    end
+end
+
+local function recoverFromRagdoll()
+    local char = player.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        pcall(function()
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+            humanoid:ChangeState(Enum.HumanoidStateType.Running)
+            humanoid.Health = humanoid.MaxHealth
+        end)
+    end
+    clearRagdollConstraints(char)
+    dropEgg()
+end
+
+local function disconnectStateConnections()
+    for _, conn in ipairs(stateConnections) do pcall(function() conn:Disconnect() end) end
+    stateConnections = {}
+end
+
+local function setupAntiRagdoll(char)
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+    pcall(function()
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+    end)
+    local stateConn = humanoid.StateChanged:Connect(function(_, new)
+        if not antiRagdoll then return end
+        if new == Enum.HumanoidStateType.Ragdoll or new == Enum.HumanoidStateType.Physics or new == Enum.HumanoidStateType.Dead then
+            task.spawn(recoverFromRagdoll)
+        end
+    end)
+    table.insert(stateConnections, stateConn)
+end
+
+local function setAntiRagdoll(enabled)
+    antiRagdoll = enabled
+    if enabled then
+        if player.Character then setupAntiRagdoll(player.Character) end
+    else
+        disconnectStateConnections()
+    end
+end
+
+player.CharacterAdded:Connect(function(char)
+    if antiRagdoll then task.defer(function() setupAntiRagdoll(char) end) end
+end)
+
+if clientCharacterUpdate and clientCharacterUpdate:IsA("RemoteEvent") then
+    clientCharacterUpdateConn = clientCharacterUpdate.OnClientEvent:Connect(function(jsonString, _hash)
+        if not antiRagdoll then return end
+        local ok, decoded = pcall(function() return HttpService:JSONDecode(jsonString) end)
+        if ok and type(decoded) == "table" and decoded.Action == "BeginRagdoll" then
+            task.spawn(function() task.wait(0.05) recoverFromRagdoll() end)
+        end
+    end)
+end
+
+local function fireCarryRemote(uid)
+    if not carryRemote or not uid then return false end
+    return pcall(function()
+        if carryRemote:IsA("RemoteFunction") then carryRemote:InvokeServer({Uid = uid}) else carryRemote:FireServer({Uid = uid}) end
+    end)
+end
+
+local function startCarrySpam(uid)
+    if not uid or not carryRemote then return end
+    carrySpamUid = uid
+    carrySpamActive = true
+    if carrySpamLoop then return end
+    carrySpamLoop = task.spawn(function()
+        while carrySpamActive and farmActive do
+            fireCarryRemote(carrySpamUid)
+            task.wait(0.1)
+        end
+        carrySpamLoop = nil
+    end)
+end
+
+local function stopCarrySpam()
+    carrySpamActive = false
+    carrySpamUid = nil
+    if carrySpamLoop then pcall(function() task.cancel(carrySpamLoop) end) carrySpamLoop = nil end
+end
+
+local farmDelay = 0.5
+local timeStatusLabel = nil
+local durationStatusLabel = nil
 local farmLoop = nil
 
 local function stopFarm()
     farmActive = false
+    stopCarrySpam()
+    setAntiRagdoll(false)
     farmLoop = nil
 end
 
 local function startFarm()
     if farmActive then return end
     if #selectedAreasOrdered == 0 then return end
-
     farmActive = true
-
+    setAntiRagdoll(true)
     enableGodMode()
     toggleDeathHandler(true)
-
     local rootPart = getRootPart()
     if rootPart then
         local startPos = getNearestStartPos(rootPart.Position)
@@ -803,19 +818,14 @@ local function startFarm()
         rootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
         rootPart.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
     end
-
     wait(0.5)
-
     farmLoop = task.spawn(function()
         local waitedForDay = false
         while farmActive do
             local isNight = isNightTime()
-
             if isNight then
                 waitedForDay = true
-                while farmActive and isNightTime() do
-                    task.wait(0.5)
-                end
+                while farmActive and isNightTime() do task.wait(0.5) end
                 task.wait(4)
                 waitedForDay = false
             else
@@ -823,50 +833,38 @@ local function startFarm()
                     task.wait(4)
                     waitedForDay = false
                 end
-
                 local remaining = getRemainingSecondsToTransition()
                 if remaining and remaining <= 15 then
                     local safePos = getNearestSafePos(getRootPart() and getRootPart().Position or SAFE_POS_1)
-                    flyToTarget(safePos)
+                    flyToTarget(safePos, true)
                     wait(0.5)
-
-                    while farmActive and isNightTime() do
-                        task.wait(0.5)
-                    end
-
+                    while farmActive and isNightTime() do task.wait(0.5) end
                     task.wait(4)
                     waitedForDay = false
                 end
-
                 local targetArea, models = findEggsFromSnapshot()
                 if targetArea and #models > 0 then
                     local targetModel = models[math.random(1, #models)]
                     local targetUid = targetModel.Name
                     local targetPos = targetModel:IsA("Model") and targetModel:GetPivot().Position or targetModel.Position
-                    
-                    local flySuccess = flyToTarget(targetPos)
-
+                    local flySuccess = flyToTarget(targetPos, false)
                     if not farmActive then break end
-
                     if not flySuccess and isNightTime() then
-                        while farmActive and isNightTime() do
-                            task.wait(0.5)
-                        end
+                        while farmActive and isNightTime() do task.wait(0.5) end
                         task.wait(4)
                         waitedForDay = false
                     elseif flySuccess and farmActive then
                         task.wait(0.2)
-
                         if carryRemote then
-                            pcall(function() carryRemote:InvokeServer({ Uid = targetUid }) end)
+                            startCarrySpam(targetUid)
+                            local safePos = getNearestSafePos(getRootPart() and getRootPart().Position or SAFE_POS_1)
+                            flyToTarget(safePos, true)
+                            stopCarrySpam()
+                            wait(farmDelay)
                         else
                             stopFarm()
                             break
                         end
-
-                        local safePos = getNearestSafePos(getRootPart() and getRootPart().Position or SAFE_POS_1)
-                        flyToTarget(safePos)
-                        wait(farmDelay)
                     else
                         wait(0.5)
                     end
@@ -874,7 +872,6 @@ local function startFarm()
                     wait(1)
                 end
             end
-
             if not farmActive then break end
         end
         disableGodMode()
@@ -897,10 +894,8 @@ end)
 local function getEggsFromRuntime()
     local eggs = {}
     if not runtimeSnapshotRemote or not runtimeSnapshotRemote:IsA("RemoteFunction") then return eggs end
-
     local ok, result = pcall(function() return runtimeSnapshotRemote:InvokeServer() end)
     if not ok or not result then return eggs end
-
     local records = nil
     if type(result) == "table" then
         for _, entry in ipairs(result) do
@@ -911,9 +906,7 @@ local function getEggsFromRuntime()
         end
         if not records and result.Records then records = result.Records end
     end
-
     if not records or type(records) ~= "table" then return eggs end
-
     for uid, eggData in pairs(records) do
         if type(uid) == "string" and type(eggData) == "table" then
             if eggData.Placement == nil then
@@ -921,13 +914,7 @@ local function getEggsFromRuntime()
                 local rarity = "Unknown"
                 if AssetsDirectory[category] then rarity = AssetsDirectory[category].Rarity end
                 local displayName = eggData.DisplayName or eggData.EggDisplayName or category
-
-                table.insert(eggs, {
-                    name = displayName,
-                    uid = uid,
-                    category = category,
-                    rarity = rarity,
-                })
+                table.insert(eggs, { name = displayName, uid = uid, category = category, rarity = rarity })
             end
         end
     end
@@ -935,11 +922,8 @@ local function getEggsFromRuntime()
 end
 
 local function equipEgg(uid)
-    if equipRemote and equipRemote:IsA("RemoteFunction") then
-        pcall(function() equipRemote:InvokeServer(uid) end)
-    elseif equipRemote and equipRemote:IsA("RemoteEvent") then
-        pcall(function() equipRemote:FireServer(uid) end)
-    end
+    if equipRemote and equipRemote:IsA("RemoteFunction") then pcall(function() equipRemote:InvokeServer(uid) end)
+    elseif equipRemote and equipRemote:IsA("RemoteEvent") then pcall(function() equipRemote:FireServer(uid) end) end
 end
 
 local function isToolHeld(uid)
@@ -971,57 +955,47 @@ end
 
 local function processInventory()
     local eggs = getEggsFromRuntime()
-    if #eggs == 0 then
-        safeSetLabel(sellStatusLabel, "Status: Tidak ada telur di inventory")
-        return
-    end
-
+    if #eggs == 0 then safeSetLabel(sellStatusLabel, "Status: Tidak ada telur di inventory") return end
     local hasFilter = false
-    for _, v in pairs(selectedSellRarities) do
-        if v == true then hasFilter = true break end
-    end
-
+    for _, v in pairs(selectedSellRarities) do if v == true then hasFilter = true break end end
     local soldCount = 0
     local skippedCount = 0
-
     for _, egg in ipairs(eggs) do
         if isDestroyed then break end
-
         local shouldSell = true
         if hasFilter then shouldSell = selectedSellRarities[egg.rarity] == true end
-
         if shouldSell then
             safeSetLabel(sellStatusLabel, "Status: Equipping " .. egg.name)
             equipEgg(egg.uid)
-
             local held = waitForToolHeld(egg.uid, 3)
             if not held then
                 safeSetLabel(sellStatusLabel, "Status: Gagal memegang " .. egg.name)
-                skippedCount += 1
+                skippedCount = skippedCount + 1
             else
                 sellEgg(egg.uid)
-                soldCount += 1
+                soldCount = soldCount + 1
                 safeSetLabel(sellStatusLabel, "Status: Sold " .. soldCount .. ": " .. egg.name)
             end
-
             wait(0.5)
         else
-            skippedCount += 1
+            skippedCount = skippedCount + 1
         end
     end
-
     safeSetLabel(sellStatusLabel, "Status: Selesai: " .. soldCount .. " terjual, " .. skippedCount .. " dilewati")
 end
 
 local espEnabled = false
 local espRenderDistance = 50
-local espDrawings = {}
 local espLastScan = 0
 local espStatusLabel = nil
+local espBillboards = {}
 
 local function espClearDrawings()
-    for _, entry in ipairs(espDrawings) do pcall(function() entry.drawing:Remove() end) end
-    espDrawings = {}
+    for uid, data in pairs(espBillboards) do
+        pcall(function() data.billboard:Destroy() end)
+        if data.anchorPart then pcall(function() data.anchorPart:Destroy() end) end
+    end
+    espBillboards = {}
 end
 
 local function espGetEggPosition(record)
@@ -1031,86 +1005,104 @@ local function espGetEggPosition(record)
 end
 
 local function espRefresh()
-    espClearDrawings()
     local snapshot = getAreaEggSnapshot()
     if not snapshot or not snapshot.Records then
-        safeSetLabel(espStatusLabel, "Eggs: 0")
+        if espStatusLabel then safeSetLabel(espStatusLabel, "Eggs: 0") end
         return
     end
     local char = player.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then
-        safeSetLabel(espStatusLabel, "Eggs: 0")
+        if espStatusLabel then safeSetLabel(espStatusLabel, "Eggs: 0") end
         return
     end
     local playerPos = char.HumanoidRootPart.Position
     local shown = 0
+    local validUids = {}
+    local folder = Workspace:FindFirstChild("AreaEggSlotsClient")
     for _, record in ipairs(snapshot.Records) do
         local pos = espGetEggPosition(record)
         if pos and (pos - playerPos).Magnitude <= espRenderDistance then
+            local uid = record.Uid
+            validUids[uid] = true
+            local model = folder and folder:FindFirstChild(uid) or Workspace:FindFirstChild(uid)
+            local scale = record.AssetScale or 1
+            if model and model:IsA("Model") then
+                local okScale, modelScale = pcall(function() return model:GetScale() end)
+                if okScale and modelScale then scale = modelScale end
+            end
             local category = record.AssetCategory or "Unknown"
             local displayName = getDisplayName(category)
             local rarityName = getRarityName(category)
             local color = getRarityColorByCategory(category)
-
-            local scale = record.AssetScale
-            local income = getIncomeForCategoryAndScale(category, scale)
-
-            local label = displayName .. " | " .. rarityName
-            if scale and type(scale) == "number" then
-                label = label .. " | Scale: " .. string.format("%.2f", scale)
-            end
-            label = label .. " | Income: " .. formatCompact(income)
-
-            table.insert(espDrawings, {
-                drawing = nil,
-                label = label,
-                color = color,
-                pos = pos,
-            })
-            shown += 1
-        end
-    end
-    for i, entry in ipairs(espDrawings) do
-        pcall(function()
-            local text = Drawing.new("Text")
-            text.Text = entry.label
-            text.Size = 16
-            text.Color = entry.color
-            text.Center = true
-            text.Outline = true
-            text.Visible = false
-            espDrawings[i].drawing = text
-        end)
-    end
-    safeSetLabel(espStatusLabel, "Eggs: " .. shown)
-end
-
-local function espUpdateDrawings()
-    local camera = Workspace.CurrentCamera
-    if not camera then return end
-    for _, entry in ipairs(espDrawings) do
-        if entry.drawing then
-            local screenPos, onScreen = camera:WorldToViewportPoint(entry.pos)
-            if onScreen then
-                entry.drawing.Visible = true
-                entry.drawing.Position = Vector2.new(screenPos.X, screenPos.Y)
+            local mutations = record.Mutations or {}
+            local income = getIncomeForCategoryScaleAndMutations(category, scale, mutations)
+            local mutationText = ""
+            if type(mutations) == "table" and #mutations > 0 then mutationText = table.concat(mutations, ", ") end
+            local labelText = displayName
+            if mutationText ~= "" then labelText = labelText .. " [" .. mutationText .. "]" end
+            labelText = labelText .. "\n" .. rarityName .. " | $" .. formatCompact(income) .. "/s | x" .. formatScale(scale)
+            local existing = espBillboards[uid]
+            if existing then
+                if existing.anchorPart then existing.anchorPart.CFrame = CFrame.new(pos) end
+                local textLabel = existing.billboard:FindFirstChildOfClass("TextLabel")
+                if textLabel then
+                    if textLabel.Text ~= labelText then textLabel.Text = labelText end
+                    if textLabel.TextColor3 ~= color then textLabel.TextColor3 = color end
+                end
             else
-                entry.drawing.Visible = false
+                local anchor = Instance.new("Part")
+                anchor.Name = "ESPAnchor_" .. uid
+                anchor.Anchored = true
+                anchor.CanCollide = false
+                anchor.CanQuery = false
+                anchor.CanTouch = false
+                anchor.Transparency = 1
+                anchor.Size = Vector3.new(0.1, 0.1, 0.1)
+                anchor.CFrame = CFrame.new(pos)
+                anchor.Parent = Workspace
+                local billboard = Instance.new("BillboardGui")
+                billboard.Name = "EggESP"
+                billboard.AlwaysOnTop = true
+                billboard.Size = UDim2.fromOffset(220, 50)
+                billboard.StudsOffset = Vector3.new(0, 3, 0)
+                billboard.MaxDistance = espRenderDistance
+                billboard.Adornee = anchor
+                billboard.Parent = anchor
+                local textLabel = Instance.new("TextLabel")
+                textLabel.Size = UDim2.fromScale(1, 1)
+                textLabel.BackgroundTransparency = 1
+                textLabel.Font = Enum.Font.GothamBold
+                textLabel.Text = labelText
+                textLabel.TextColor3 = color
+                textLabel.TextStrokeTransparency = 0
+                textLabel.TextSize = 14
+                textLabel.TextWrapped = true
+                textLabel.TextYAlignment = Enum.TextYAlignment.Center
+                textLabel.Parent = billboard
+                espBillboards[uid] = { billboard = billboard, anchorPart = anchor }
             end
+            shown = shown + 1
         end
     end
+    for uid, data in pairs(espBillboards) do
+        if not validUids[uid] then
+            pcall(function() data.billboard:Destroy() end)
+            if data.anchorPart then pcall(function() data.anchorPart:Destroy() end) end
+            espBillboards[uid] = nil
+        end
+    end
+    if espStatusLabel then safeSetLabel(espStatusLabel, "Eggs: " .. shown) end
 end
 
-RunService.RenderStepped:Connect(function()
+RunService.Heartbeat:Connect(function()
     if not espEnabled then
-        if #espDrawings > 0 then espClearDrawings() end
+        if next(espBillboards) then espClearDrawings() end
         return
     end
-    if os.clock() - espLastScan >= 1 then
+    if os.clock() - espLastScan >= 0.5 then
         espLastScan = os.clock()
         espRefresh()
     end
-    espUpdateDrawings()
 end)
 
 local Window = Library:CreateWindow({
@@ -1131,14 +1123,13 @@ local TabSell = Window:AddTab("Sell", "tag")
 local TabESP = Window:AddTab("ESP", "eye")
 
 local elementIdx = 0
-
 local AreaGroup = TabHome:AddLeftGroupbox("Area Selection")
 local AutoFarmGroup = TabHome:AddRightGroupbox("Auto Farm")
 local TimeInfoGroup = TabHome:AddRightGroupbox("Time Cycle Detector")
 local RarityFilterGroup = TabHome:AddLeftGroupbox("Rarity Filter")
 local NameFilterGroup = TabHome:AddLeftGroupbox("Name Filter")
 local IncomeFilterGroup = TabHome:AddLeftGroupbox("Income Filter")
-local FarmSettingsGroup = TabHome:AddLeftGroupbox("Farm Settings")
+local ScaleFilterGroup = TabHome:AddLeftGroupbox("Scale Filter")
 
 timeStatusLabel = TimeInfoGroup:AddLabel("Kondisi: Memuat...")
 durationStatusLabel = TimeInfoGroup:AddLabel("Sisa Waktu: Memuat...")
@@ -1209,9 +1200,7 @@ IncomeFilterGroup.AddInput(IncomeFilterGroup, elementIdx, {
     ClearTextOnFocus = false,
     Finished = true,
     Callback = function(value)
-        if value == "" then
-            maxIncomeFilter = math.huge
-        else
+        if value == "" then maxIncomeFilter = math.huge else
             local parsed = parseIncomeText(value)
             if parsed then maxIncomeFilter = parsed end
         end
@@ -1219,28 +1208,25 @@ IncomeFilterGroup.AddInput(IncomeFilterGroup, elementIdx, {
 })
 
 elementIdx = elementIdx + 1
-FarmSettingsGroup.AddInput(FarmSettingsGroup, elementIdx, {
-    Text = "Farm Delay (seconds)",
-    Default = tostring(farmDelay),
-    Numeric = true,
-    ClearTextOnFocus = false,
-    Finished = true,
-    Callback = function(value)
-        farmDelay = tonumber(value) or 0.5
-    end,
+ScaleFilterGroup.AddSlider(ScaleFilterGroup, elementIdx, {
+    Text = "Min Scale",
+    Min = 0.1,
+    Max = 100,
+    Default = 0.1,
+    Rounding = 2,
+    Suffix = "x",
+    Callback = function(value) minScaleFilter = value end,
 })
 
 elementIdx = elementIdx + 1
-FarmSettingsGroup.AddInput(FarmSettingsGroup, elementIdx, {
-    Text = "Fly Speed",
-    Default = tostring(flySpeed),
-    Numeric = true,
-    ClearTextOnFocus = false,
-    Finished = true,
-    Callback = function(value)
-        local newSpeed = tonumber(value)
-        if newSpeed and newSpeed > 0 then flySpeed = newSpeed end
-    end,
+ScaleFilterGroup.AddSlider(ScaleFilterGroup, elementIdx, {
+    Text = "Max Scale",
+    Min = 0.1,
+    Max = 100,
+    Default = 100,
+    Rounding = 2,
+    Suffix = "x",
+    Callback = function(value) maxScaleFilter = value end,
 })
 
 elementIdx = elementIdx + 1
@@ -1249,6 +1235,29 @@ AutoFarmGroup.AddToggle(AutoFarmGroup, elementIdx, {
     Default = false,
     Callback = function(state)
         if state then startFarm() else stopFarm() end
+    end,
+})
+
+elementIdx = elementIdx + 1
+AutoFarmGroup.AddInput(AutoFarmGroup, elementIdx, {
+    Text = "Farm Delay (seconds)",
+    Default = tostring(farmDelay),
+    Numeric = true,
+    ClearTextOnFocus = false,
+    Finished = true,
+    Callback = function(value) farmDelay = tonumber(value) or 0.5 end,
+})
+
+elementIdx = elementIdx + 1
+AutoFarmGroup.AddInput(AutoFarmGroup, elementIdx, {
+    Text = "Fly Speed",
+    Default = tostring(flySpeed),
+    Numeric = true,
+    ClearTextOnFocus = false,
+    Finished = true,
+    Callback = function(value)
+        local newSpeed = tonumber(value)
+        if newSpeed and newSpeed > 0 then flySpeed = newSpeed end
     end,
 })
 
@@ -1269,19 +1278,14 @@ SellLeft:AddButton({
     Text = "Scan Eggs",
     Callback = function()
         local eggs = getEggsFromRuntime()
-        if #eggs == 0 then
-            safeSetLabel(sellStatusLabel, "Status: Tidak ada telur di inventory")
-        else
-            safeSetLabel(sellStatusLabel, "Status: Ditemukan " .. #eggs .. " telur")
-        end
+        if #eggs == 0 then safeSetLabel(sellStatusLabel, "Status: Tidak ada telur di inventory")
+        else safeSetLabel(sellStatusLabel, "Status: Ditemukan " .. #eggs .. " telur") end
     end,
 })
 
 SellLeft:AddButton({
     Text = "Sell Eggs (Filtered)",
-    Callback = function()
-        processInventory()
-    end,
+    Callback = function() processInventory() end,
 })
 
 local ESPLeft = TabESP:AddLeftGroupbox("ESP Settings")
@@ -1293,7 +1297,10 @@ ESPLeft.AddToggle(ESPLeft, elementIdx, {
     Default = false,
     Callback = function(state)
         espEnabled = state
-        if state then espLastScan = 0 else espClearDrawings() safeSetLabel(espStatusLabel, "Eggs: 0") end
+        if state then espLastScan = 0 else
+            espClearDrawings()
+            safeSetLabel(espStatusLabel, "Eggs: 0")
+        end
     end,
 })
 
@@ -1330,7 +1337,6 @@ local LockBtn = Library:AddDraggableButton("Lock", function(btn)
     Library.CantDragForced = not Library.CantDragForced
     btn:SetText(Library.CantDragForced and "Unlock" or "Lock")
 end, true, true)
-
 ToggleBtn.Button.Position = UDim2.fromOffset(6, 6)
 LockBtn.Button.Position = UDim2.fromOffset(ToggleBtn.Button.Size.X.Offset + 12, 6)
 
