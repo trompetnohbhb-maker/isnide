@@ -22,7 +22,8 @@ local daftarGame = {
     [97665661589897] = { nama = "JUMP CASE FOR RNG", file = "rng"},
     [104973076655377] = { nama = "CAPYBARAS VS PLANTS", file = "capy"},
     [125039473548047] = { nama = "ANIME CARD FARM", file = "anime%20card%20farm"},
-    [107778070777162] = { nama = "STEAL AN EGG", file = "steal%20an%20egg"}
+    [107778070777162] = { nama = "STEAL AN EGG", file = "steal%20an%20egg"},
+    [113290951185459] = { nama = "ANIME DICE", file = "animedice"}
 
 }
 
