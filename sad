@@ -23,14 +23,14 @@ local daftarGame = {
     [104973076655377] = { nama = "CAPYBARAS VS PLANTS", file = "capy"},
     [125039473548047] = { nama = "ANIME CARD FARM", file = "anime%20card%20farm"},
     [107778070777162] = { nama = "STEAL AN EGG", file = "steal%20an%20egg"},
-    [113290951185459] = { nama = "ANIME DICE", file = "animedice"}
+    [113290951185459] = { nama = "ANIME DICE", file = "animedice"},
+    [124216119978534] = { nama = "RIDE A PET", file = "rideapet"}
 
 }
 
 local gameTarget = daftarGame[placeId]
 
 if gameTarget then
-    -- Notifikasi sukses
     pcall(function()
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Script Loaded",
@@ -42,7 +42,6 @@ if gameTarget then
         loadstring(game:HttpGet(baseUrl .. gameTarget.file))()
     end)
     if not ok then
-        -- Notifikasi error
         pcall(function()
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Error",
@@ -52,7 +51,6 @@ if gameTarget then
         end)
     end
 else
-    -- Notifikasi game tidak dikenali
     pcall(function()
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Unknown Game",
