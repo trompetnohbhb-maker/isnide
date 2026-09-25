@@ -24,7 +24,8 @@ local daftarGame = {
     [125039473548047] = { nama = "ANIME CARD FARM", file = "anime%20card%20farm"},
     [107778070777162] = { nama = "STEAL AN EGG", file = "steal%20an%20egg"},
     [113290951185459] = { nama = "ANIME DICE", file = "animedice"},
-    [124216119978534] = { nama = "RIDE A PET", file = "rideapet"}
+    [124216119978534] = { nama = "RIDE A PET", file = "rideapet"},
+    [76943966208523]  = { nama = "CLONE TO STEAL EGG", file = "CloneToStealEgg"}
 
 }
 
