@@ -25,7 +25,8 @@ local daftarGame = {
     [107778070777162] = { nama = "STEAL AN EGG", file = "steal%20an%20egg"},
     [113290951185459] = { nama = "ANIME DICE", file = "animedice"},
     [124216119978534] = { nama = "RIDE A PET", file = "rideapet"},
-    [76943966208523]  = { nama = "CLONE TO STEAL EGG", file = "CloneToStealEgg"}
+    [76943966208523]  = { nama = "CLONE TO STEAL EGG", file = "CloneToStealEgg"},
+    [114326934417838] = { nama = "BREAK AND STEAL AN EGG", file = "Break%20and%20steal%20an%20egg"}
 
 }
 
